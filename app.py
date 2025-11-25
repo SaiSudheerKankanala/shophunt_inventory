@@ -6,13 +6,14 @@ import os
 app = Flask(__name__)
 
 # MySQL configuration using Railway environment variables
+# MySQL configuration using Railway environment variables
 db_config = {
-    'host': os.environ.get('MYSQL_HOST'),
-    'user': os.environ.get('MYSQL_USER'),
-    'password': os.environ.get('MYSQL_PASSWORD'),
-    'database': os.environ.get('MYSQL_DB')
+    'host': os.environ.get('MYSQLHOST', 'ballast.proxy.rlwy.net'),
+    'user': os.environ.get('MYSQLUSER', 'root'),
+    'password': os.environ.get('MYSQLPASSWORD', 'SjmGYKKMDAYKGzYQzlkISNiLSMeBvlfi'),
+    'database': os.environ.get('MYSQLDATABASE', 'railway'),
+    'port': os.environ.get('MYSQLPORT', 19240)
 }
-
 
 def get_db_connection():
     try:
@@ -165,3 +166,4 @@ def search_inventory():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
