@@ -11,11 +11,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Railway MySQL configuration - with fallbacks
 db_config = {
-    'host': os.environ.get('MYSQLHOST', 'localhost'),
+    'host': os.environ.get('MYSQLHOST', 'ballast.proxy.rlwy.net'),
     'user': os.environ.get('MYSQLUSER', 'root'),
-    'password': os.environ.get('MYSQLPASSWORD', ''),
+    'password': os.environ.get('MYSQLPASSWORD', 'SjmGYKKMDAYKGzYQzlkISNiLSMeBvlfi'),
     'database': os.environ.get('MYSQLDATABASE', 'railway'),
-    'port': int(os.environ.get('MYSQLPORT', 3306))
+    'port': int(os.environ.get('MYSQLPORT', 19240))
 }
 
 print("🔧 Database Configuration:")
@@ -100,3 +100,4 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print(f"🚀 Starting Flask app on port {port}")
     app.run(host="0.0.0.0", port=port, debug=False)
+
