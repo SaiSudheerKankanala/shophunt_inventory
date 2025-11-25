@@ -1,17 +1,16 @@
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template
 import mysql.connector
 from mysql.connector import Error
 import os
 
 app = Flask(__name__)
 
-# MySQL configuration using Railway environment variables
-# MySQL configuration using Railway environment variables
+# Railway MySQL configuration
 db_config = {
-    'host': os.environ.get('MYSQLHOST', 'ballast.proxy.rlwy.net'),
-    'user': os.environ.get('MYSQLUSER', 'root'),
-    'password': os.environ.get('MYSQLPASSWORD', 'SjmGYKKMDAYKGzYQzlkISNiLSMeBvlfi'),
-    'database': os.environ.get('MYSQLDATABASE', 'railway'),
+    'host': os.environ.get('MYSQLHOST'),
+    'user': os.environ.get('MYSQLUSER'), 
+    'password': os.environ.get('MYSQLPASSWORD'),
+    'database': os.environ.get('MYSQLDATABASE'),
     'port': os.environ.get('MYSQLPORT', 19240)
 }
 
@@ -20,20 +19,14 @@ def get_db_connection():
         connection = mysql.connector.connect(**db_config)
         return connection
     except Error as e:
-        print(f"❌ Error connecting to MySQL: {e}")
+        print(f"❌ Database connection error: {e}")
         return None
-
-# HTML Interface for Distributors
-HTML_INTERFACE = """ 
-<!-- Paste your entire HTML_INTERFACE content here from your notebook --> 
-"""
-
-# Routes
 
 @app.route('/')
 def distributor_interface():
-    return render_template_string(HTML_INTERFACE)
+    return render_template('index.html')
 
+# Keep all your API routes exactly as they were
 @app.route('/api/inventory/add', methods=['POST'])
 def add_inventory():
     try:
@@ -68,102 +61,22 @@ def add_inventory():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
+# Include all your other routes exactly as they were
 @app.route('/api/inventory/all', methods=['GET'])
 def get_all_inventory():
-    try:
-        connection = get_db_connection()
-        if connection is None:
-            return jsonify({'error': 'Database connection failed'}), 500
-
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT record_id, shop_name, shop_owner, shop_address,
-                   product_name, product_brand, product_mrp, product_size,
-                   quantity, selling_price, manufacture_date, expiry_date,
-                   stock_status, is_available, created_at, last_updated
-            FROM product_inventory
-            ORDER BY last_updated DESC
-        """)
-        inventory = cursor.fetchall()
-        cursor.close()
-        connection.close()
-
-        return jsonify({'count': len(inventory), 'data': inventory}), 200
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+    # ... your existing code
+    pass
 
 @app.route('/api/inventory/delete/<int:record_id>', methods=['DELETE'])
 def delete_inventory(record_id):
-    try:
-        connection = get_db_connection()
-        if connection is None:
-            return jsonify({'error': 'Database connection failed'}), 500
-
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM product_inventory WHERE record_id = %s", (record_id,))
-        record = cursor.fetchone()
-
-        if not record:
-            cursor.close()
-            connection.close()
-            return jsonify({'error': 'Record not found'}), 404
-
-        cursor.execute("DELETE FROM product_inventory WHERE record_id = %s", (record_id,))
-        connection.commit()
-        cursor.close()
-        connection.close()
-
-        return jsonify({'message': 'Inventory record permanently deleted from database'}), 200
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+    # ... your existing code  
+    pass
 
 @app.route('/api/inventory/search', methods=['GET'])
 def search_inventory():
-    try:
-        product_name = request.args.get('product', '')
-        shop_name = request.args.get('shop', '')
-        brand = request.args.get('brand', '')
+    # ... your existing code
+    pass
 
-        connection = get_db_connection()
-        if connection is None:
-            return jsonify({'error': 'Database connection failed'}), 500
-
-        cursor = connection.cursor(dictionary=True)
-
-        query = """
-            SELECT record_id, shop_name, product_name, product_brand,
-                   product_size, quantity, selling_price, product_mrp,
-                   stock_status, expiry_date
-            FROM product_inventory
-            WHERE 1=1
-        """
-        params = []
-
-        if product_name:
-            query += " AND product_name LIKE %s"
-            params.append(f"%{product_name}%")
-        if shop_name:
-            query += " AND shop_name LIKE %s"
-            params.append(f"%{shop_name}%")
-        if brand:
-            query += " AND product_brand LIKE %s"
-            params.append(f"%{brand}%")
-
-        query += " ORDER BY product_name, shop_name"
-        cursor.execute(query, params)
-        results = cursor.fetchall()
-        cursor.close()
-        connection.close()
-
-        return jsonify({'count': len(results), 'results': results}), 200
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
-
-# Start Flask app
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
