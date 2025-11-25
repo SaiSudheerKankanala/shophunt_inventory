@@ -1,55 +1,93 @@
-<script>
-    // Use current domain - FIXED
-    const API_BASE = window.location.origin;
-    
-    console.log("API Base URL:", API_BASE);
-
-    async function addInventory() {
-        const data = {
-            shop_name: document.getElementById('shopName').value,
-            shop_owner: document.getElementById('shopOwner').value,
-            shop_address: document.getElementById('shopAddress').value,
-            product_name: document.getElementById('productName').value,
-            product_brand: document.getElementById('productBrand').value,
-            product_mrp: parseFloat(document.getElementById('productMrp').value) || 0,
-            product_size: document.getElementById('productSize').value,
-            quantity: parseInt(document.getElementById('quantity').value) || 0,
-            selling_price: parseFloat(document.getElementById('sellingPrice').value) || 0,
-            manufacture_date: document.getElementById('manufactureDate').value,
-            expiry_date: document.getElementById('expiryDate').value,
-            stock_status: document.getElementById('stockStatus').value,
-            is_available: document.getElementById('isAvailable').value === 'true'
-        };
-
-        console.log("Sending data:", data);
-        await postData('/api/inventory/add', data, 'addResponse');
-        getAllInventory();
-    }
-
-    // Add error handling to getAllInventory
-    async function getAllInventory() {
-        try {
-            console.log("Fetching inventory from:", API_BASE + '/api/inventory/all');
-            const response = await fetch(API_BASE + '/api/inventory/all');
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const result = await response.json();
-            console.log("Inventory data received:", result);
-
-            if (result.data && result.data.length > 0) {
-                displayInventoryData(result.data);
-            } else {
-                document.getElementById('inventoryData').innerHTML = '<p>No inventory data found.</p>';
-            }
-        } catch (error) {
-            console.error('Error loading inventory:', error);
-            document.getElementById('inventoryData').innerHTML = 
-                '<div class="error">Error loading data: ' + error.message + '</div>';
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shop Hunt - Distributor Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f5f5f5;
         }
-    }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛍️ Shop Hunt - Distributor Portal</h1>
+        <p>If you can see this, templates are working!</p>
+        
+        <div class="form-section">
+            <h2>➕ Add Product Inventory</h2>
+            <input type="text" id="shopName" placeholder="Shop Name" value="Test Shop">
+            <input type="text" id="productName" placeholder="Product Name" value="Test Product">
+            <input type="number" id="quantity" placeholder="Quantity" value="10">
+            <button onclick="addInventory()">Add Inventory</button>
+            <div id="addResponse"></div>
+        </div>
 
-    // Your other JavaScript functions remain the same...
-</script>
+        <button onclick="getAllInventory()">Load All Inventory</button>
+        <div id="inventoryData"></div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        console.log("API Base:", API_BASE);
+
+        async function addInventory() {
+            const data = {
+                shop_name: document.getElementById('shopName').value,
+                product_name: document.getElementById('productName').value,
+                quantity: parseInt(document.getElementById('quantity').value)
+            };
+
+            try {
+                const response = await fetch(API_BASE + '/api/inventory/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                const element = document.getElementById('addResponse');
+                element.innerHTML = response.ok ? 
+                    '✅ ' + result.message : 
+                    '❌ Error: ' + result.error;
+                element.className = response.ok ? 'success' : 'error';
+                
+            } catch (error) {
+                document.getElementById('addResponse').innerHTML = '❌ Network Error: ' + error;
+            }
+        }
+
+        async function getAllInventory() {
+            try {
+                const response = await fetch(API_BASE + '/api/inventory/all');
+                const result = await response.json();
+                document.getElementById('inventoryData').innerHTML = 
+                    '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            } catch (error) {
+                document.getElementById('inventoryData').innerHTML = 'Error: ' + error;
+            }
+        }
+
+        // Test API connection on load
+        window.onload = function() {
+            console.log("Page loaded, testing API...");
+            getAllInventory();
+        }
+    </script>
+</body>
+</html>
