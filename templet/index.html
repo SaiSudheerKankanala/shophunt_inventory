@@ -1,67 +1,55 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Shop Hunt - Distributor Portal</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        /* Add all your CSS styles here from your original HTML_INTERFACE */
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🛍️ Shop Hunt - Distributor Portal</h1>
-        
-        <!-- Add Inventory Form -->
-        <div class="form-section">
-            <h2>➕ Add Product Inventory</h2>
-            <!-- Your form HTML here -->
-        </div>
-        
-        <!-- Include all your original HTML content -->
-    </div>
+<script>
+    // Use current domain - FIXED
+    const API_BASE = window.location.origin;
+    
+    console.log("API Base URL:", API_BASE);
 
-    <script>
-        // CRITICAL: Use current domain, not localhost
-        const API_BASE = window.location.origin;
-        
-        // Your existing JavaScript functions
-        async function addInventory() {
-            const data = {
-                shop_name: document.getElementById('shopName').value,
-                shop_owner: document.getElementById('shopOwner').value,
-                // ... all your existing data collection
-            };
+    async function addInventory() {
+        const data = {
+            shop_name: document.getElementById('shopName').value,
+            shop_owner: document.getElementById('shopOwner').value,
+            shop_address: document.getElementById('shopAddress').value,
+            product_name: document.getElementById('productName').value,
+            product_brand: document.getElementById('productBrand').value,
+            product_mrp: parseFloat(document.getElementById('productMrp').value) || 0,
+            product_size: document.getElementById('productSize').value,
+            quantity: parseInt(document.getElementById('quantity').value) || 0,
+            selling_price: parseFloat(document.getElementById('sellingPrice').value) || 0,
+            manufacture_date: document.getElementById('manufactureDate').value,
+            expiry_date: document.getElementById('expiryDate').value,
+            stock_status: document.getElementById('stockStatus').value,
+            is_available: document.getElementById('isAvailable').value === 'true'
+        };
 
-            await postData('/api/inventory/add', data, 'addResponse');
-            getAllInventory();
-        }
+        console.log("Sending data:", data);
+        await postData('/api/inventory/add', data, 'addResponse');
+        getAllInventory();
+    }
 
-        // Include all your other JavaScript functions
-        async function getAllInventory() {
-            try {
-                const response = await fetch(API_BASE + '/api/inventory/all');
-                const result = await response.json();
-                if (result.data) {
-                    displayInventoryData(result.data);
-                }
-            } catch (error) {
-                console.error('Error:', error);
+    // Add error handling to getAllInventory
+    async function getAllInventory() {
+        try {
+            console.log("Fetching inventory from:", API_BASE + '/api/inventory/all');
+            const response = await fetch(API_BASE + '/api/inventory/all');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        }
+            
+            const result = await response.json();
+            console.log("Inventory data received:", result);
 
-        // ... include all your other functions
-    </script>
-</body>
-</html>
+            if (result.data && result.data.length > 0) {
+                displayInventoryData(result.data);
+            } else {
+                document.getElementById('inventoryData').innerHTML = '<p>No inventory data found.</p>';
+            }
+        } catch (error) {
+            console.error('Error loading inventory:', error);
+            document.getElementById('inventoryData').innerHTML = 
+                '<div class="error">Error loading data: ' + error.message + '</div>';
+        }
+    }
+
+    // Your other JavaScript functions remain the same...
+</script>
