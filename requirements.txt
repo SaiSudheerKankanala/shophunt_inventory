@@ -1,5 +1,3 @@
-fastapi
-uvicorn
-pydantic
-mysql-connector-python
-pandas
+Flask==2.3.3
+mysql-connector-python==8.1.0
+uvicorn==0.23.2
