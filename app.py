@@ -14,7 +14,8 @@ db_config = {
     'host': 'ballast.proxy.rlwy.net',
     'user': 'root',
     'password': 'SjmGYKKMDAYKGzYQzlkISNiLSMeBvlfi',
-    'database': 'shop_hunt'
+    'database': 'shop_hunt',
+    'port'=19240
 }
 
 def get_db_connection():
@@ -333,3 +334,4 @@ def search_inventory():
 if __name__=="__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
