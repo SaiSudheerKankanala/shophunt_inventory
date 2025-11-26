@@ -12,7 +12,7 @@ db_config = {
     'user': os.environ.get('MYSQLUSER', 'root'),
     'password': os.environ.get('MYSQLPASSWORD', 'SjmGYKKMDAYKGzYQzlkISNiLSMeBvlfi'),
     'database': os.environ.get('MYSQLDATABASE', 'shop_hunt'),
-    'port': int(os.environ.get('MYSQLPORT', 19240))
+    'port': int(os.environ.get('MYSQLPORT', 3306))
 }
 
 def get_db_connection():
@@ -549,4 +549,5 @@ def search_inventory():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port, debug=False)
+
 
